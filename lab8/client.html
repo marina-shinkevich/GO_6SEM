@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>WebSocket Client</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      margin: 20px;
+      background: #ffe6f2;
+      color: #8a004d;
+    }
+    
+    h1 {
+      color: #ff3399;
+    }
+    
+    .controls {
+      margin: 20px 0;
+    }
+    
+    button {
+      padding: 10px 20px;
+      background: #ff66b2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    button:hover {
+      background: #ff3399;
+    }
+    
+    #log {
+      background: #ffccdd;
+      border: 2px solid #ff66b2;
+      padding: 15px;
+      height: 300px;
+      overflow-y: auto;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+    
+    .sent { color: #ff0066; }
+    .recv { color: #cc0066; }
+    .info { color: #99004d; }
+    .error { color: #ff0000; }
+  </style>
+</head>
+<body>
+  <h1>WebSocket Client</h1>
+  
+  <div class="controls">
+    <button onclick="sendMessages()">Отправить 5 сообщений</button>
+  </div>
+  
+  <div id="log"></div>
+
+  <script>
+    let ws = null;
+    
+    function log(text, cls) {
+      const div = document.getElementById('log');
+      const line = document.createElement('div');
+      line.className = cls || 'info';
+      line.textContent = new Date().toLocaleTimeString() + ' | ' + text;
+      div.appendChild(line);
+      div.scrollTop = div.scrollHeight;
+    }
+    
+    function sendMessages() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        log('Уже подключено, отправляю сообщения...', 'info');
+        sendFiveMessages();
+        return;
+      }
+      
+      log('Подключение к серверу...', 'info');
+      ws = new WebSocket('ws://localhost:3000/ws');
+      
+      ws.onopen = function () {
+        log('Подключено', 'info');
+        sendFiveMessages();
+      };
+      
+      ws.onmessage = function (event) {
+        log('Получено: ' + event.data, 'recv');
+      };
+      
+      ws.onclose = function () {
+        log('Соединение закрыто', 'info');
+        ws = null;
+      };
+      
+      ws.onerror = function (error) {
+        log('Ошибка: ' + error, 'error');
+      };
+    }
+    
+    function sendFiveMessages() {
+      for (let i = 1; i <= 5; i++) {
+        setTimeout(() => {
+          const msg = `Сообщение ${i}`;
+          ws.send(msg);
+          log('Отправлено: ' + msg, 'sent');
+        }, i * 1000);
+      }
+      
+      setTimeout(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.close();
+        }
+      }, 6000);
+    }
+  </script>
+</body>
+</html>

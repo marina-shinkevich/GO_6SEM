@@ -1,0 +1,35 @@
+# Создание директории
+curl.exe -X MKCOL http://localhost:8082/testdir/ -u webdavuser:mypassword123
+
+# Загрузка файла
+curl.exe -X PUT http://localhost:8082/testdir/test.txt -u webdavuser:mypassword123 -d "Привет, WebDAV!"
+
+# Скачивание файла
+curl.exe http://localhost:8082/testdir/test.txt -u webdavuser:mypassword123
+
+# Копирование
+curl.exe -X COPY http://localhost:8082/testdir/test.txt -u webdavuser:mypassword123 -H "Destination: http://localhost:8082/testdir/test_copy.txt" -H "Overwrite: T"
+
+# Перемещение
+curl.exe -X MOVE http://localhost:8082/testdir/test_copy.txt -u webdavuser:mypassword123 -H "Destination: http://localhost:8082/testdir/test_moved.txt" -H "Overwrite: T"
+
+# Удаление файлов
+curl.exe -X DELETE http://localhost:8082/testdir/test.txt -u webdavuser:mypassword123
+curl.exe -X DELETE http://localhost:8082/testdir/test_moved.txt -u webdavuser:mypassword123
+
+# Удаление директории
+curl.exe -X DELETE http://localhost:8082/testdir/ -u webdavuser:mypassword123 -H "Depth: infinity"
+
+
+
+
+
+docker-compose up --build
+docker exec -it cadaver-client cadaver http://nginx-webdav:8080
+имя webdavuser пароль mypassword123
+затем вводишь 
+dav:/)> ls
+dav:/)> mkcol test
+dav:/)> ls
+dav:/)> mrcol test
+dav:/)> ls

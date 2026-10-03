@@ -1,0 +1,172 @@
+basePath: /
+definitions:
+  main.Celebrity:
+    properties:
+      fullName:
+        example: Charlie Chaplin
+        type: string
+      id:
+        example: 1
+        type: integer
+      nationality:
+        example: United Kingdom
+        type: string
+      reqPhotoPath:
+        example: photos/charlie_chaplin.jpg
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: REST-интерфейс для работы с коллекцией Celebrities.
+  title: GO11_01 API
+  version: "1.0"
+paths:
+  /Celebrities:
+    post:
+      consumes:
+      - application/json
+      description: Добавить элемент в коллекцию Celebrities. При дублировании id возвращается
+        409.
+      parameters:
+      - description: Данные элемента
+        in: body
+        name: celebrity
+        required: true
+        schema:
+          $ref: '#/definitions/main.Celebrity'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Элемент создан
+          schema:
+            $ref: '#/definitions/main.Celebrity'
+        "400":
+          description: Некорректный JSON
+          schema:
+            type: string
+        "409":
+          description: Элемент с таким id уже существует
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Добавить элемент
+      tags:
+      - Celebrities
+  /Celebrities/{id}:
+    delete:
+      description: Удалить элемент коллекции Celebrities по id. При отсутствии элемента
+        возвращается 404.
+      parameters:
+      - description: Id элемента
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный ответ
+          schema:
+            $ref: '#/definitions/main.Celebrity'
+        "404":
+          description: Элемент не найден
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Удалить элемент
+      tags:
+      - Celebrities
+    get:
+      description: Получить элемент коллекции Celebrities по id.
+      parameters:
+      - description: Id элемента
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный ответ
+          schema:
+            $ref: '#/definitions/main.Celebrity'
+        "404":
+          description: Элемент не найден
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Элемент коллекции
+      tags:
+      - Celebrities
+    put:
+      consumes:
+      - application/json
+      description: Изменить элемент коллекции Celebrities по id. При отсутствии элемента
+        возвращается 404.
+      parameters:
+      - description: Id элемента
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Данные элемента
+        in: body
+        name: celebrity
+        required: true
+        schema:
+          $ref: '#/definitions/main.Celebrity'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный ответ
+          schema:
+            $ref: '#/definitions/main.Celebrity'
+        "400":
+          description: Некорректный JSON
+          schema:
+            type: string
+        "404":
+          description: Элемент не найден
+          schema:
+            type: string
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Изменить элемент
+      tags:
+      - Celebrities
+  /Celebrities/All:
+    get:
+      description: Получить все элементы коллекции Celebrities.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный ответ
+          schema:
+            items:
+              $ref: '#/definitions/main.Celebrity'
+            type: array
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Вся коллекция
+      tags:
+      - Celebrities
+swagger: "2.0"

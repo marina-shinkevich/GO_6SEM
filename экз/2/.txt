@@ -1,0 +1,152 @@
+Чтобы продемонстрировать работоспособность, вам нужно запустить сервер и открыть программу Postman:
+
+    Создайте в Postman новый запрос и выберите метод POST.
+    Введите URL: http://localhost:3000/graphql.
+    Перейдите во вкладку Body (Тело запроса).
+    Выберите тип GraphQL (в современных версиях Postman есть специальная радио-кнопка для GraphQL, если 
+    её нет — выберите raw -> JSON).
+    В поле Query вставьте следующий текст запроса:
+    Нажмите Send.
+    В нижней части экрана Postman вы должны получить JSON-ответ с вашими данными-заглушками (stub):
+    Фишка GraphQL для преподавателя: Если в Postman вы удалите из запроса слово surname и нажмете Send, 
+    сервер вернет ответ только с полем firstname. Сервер не шлет лишних данных, клиент сам решает, что 
+    ему нужно
+
+1. Из каких компонентов состоит GraphQL-сервер?
+
+    Схема (Schema) — это жесткий контракт, написанный на специальном языке. В ней описаны все типы данных 
+    (например, Celebrity) и возможные операции (Query для чтения, Mutation для изменения). Схема жестко 
+    типизирована (String!, ID!), где восклицательный знак означает обязательное поле.
+    Резолверы (Resolvers) — это методы (функции) в Go, которые физически реализуют логику схемы. 
+    Если клиент запросил поле Firstname, движок graphql-go найдет соответствующий метод Firstname() в 
+    структуре CelebrityResolver и выполнит его.
+
+2. Как работает движок schema.Exec? Функция schema.Exec берет текстовый запрос, пришедший от клиента, сверяет
+ его с загруженной схемой и автоматически вызывает нужные методы-резолверы. Она сама собирает разрозненные 
+ результаты от разных функций в один красивый итоговый JSON.
+
+3. Почему на сервере только один endpoint (/graphql)? В отличие от REST, где мы делаем разные URL для разных 
+сущностей (/users, /posts, /celebrities), GraphQL всю маршрутизацию осуществляет внутри тела запроса. Серверу 
+нужен только один HTTP-обработчик (одна "входная дверь"), который просто принимает POST-запросы, распаковывает 
+их и "скармливает" движку schema.Exec.
+
+
+
+package main
+
+import (
+	"context"      // Пакет для управления контекстом выполнения (передача таймаутов, метаданных трассировки)
+	"encoding/json" // Пакет для работы с JSON (парсинг входящих запросов и кодирование ответов)
+	"log"           // Пакет для логирования работы сервера в консоль
+	"net/http"      // Пакет для создания стандартного HTTP-сервера
+
+	// Библиотека graphql-go реализует подход "Schema-First" (Сначала Схема) в Go
+	"github.com/graph-gophers/graphql-go"
+)
+
+// === 1. СХЕМА GRAPHQL (Schema) ===
+// Схема — это "контракт" между клиентом и сервером. Она строго описывает типы данных 
+// и типы операций (Query — чтение, Mutation — запись, Subscription — подписка).
+// Знак `!` означает Non-Null (поле строго обязательное, null вернуться не может).
+const schemaString = `
+	schema {
+		query: Query
+	}
+	type Query {
+		# Запрос celebrity принимает обязательный аргумент id и возвращает объект типа Celebrity
+		celebrity(id: ID!): Celebrity
+	}
+	type Celebrity {
+		id: ID!
+		firstname: String!
+		surname: String!
+	}
+`
+
+// === 2. СТРУКТУРЫ ДАННЫХ (Models) ===
+// Внутреннее Go-представление сущности "Знаменитость".
+// Поля структуры могут не совпадать по названиям со схемой, так как за их связывание 
+// отвечают специальные методы-резолверы, написанные ниже.
+type Celebrity struct {
+	ID        graphql.ID // Специальный тип ID из библиотеки graphql-go (внутри хранит строку)
+	Firstname string
+	Surname   string
+}
+
+// === 3. РЕЗОЛВЕРЫ (Resolvers) ===
+// Резолвер — это структура, методы которой физически извлекают данные для GraphQL-запросов.
+
+// Resolver — это главный (корневой) резолвер приложения. 
+// Его методы должны в точности соответствовать полям внутри корневого типа `type Query` в схеме.
+type Resolver struct{}
+
+// CelebrityResolver — это резолвер для конкретного объекта Celebrity. 
+// Он инкапсулирует (оборачивает) сырую Go-структуру модели, предоставляя к ней контролируемый доступ.
+type CelebrityResolver struct {
+	c *Celebrity
+}
+
+// Celebrity — обработчик корневого запроса "celebrity(id: ID!)".
+// Имя метода должно в точности повторять поле из схемы (в Go пишется с заглавной буквы).
+// На вход принимает структуру args, которая автоматически парсит переданные аргументы из запроса.
+func (r *Resolver) Celebrity(ctx context.Context, args struct{ ID graphql.ID }) *CelebrityResolver {
+	// В реальном приложении здесь был бы SQL-запрос к БД: "SELECT * FROM celebrities WHERE id = args.ID"
+	// В учебном примере мы просто «на лету» создаем объект структуры с полученным ID 
+	// и оборачиваем его в наш дочерний резолвер.
+	return &CelebrityResolver{&Celebrity{ID: args.ID}}
+}
+
+// Резолверы конкретных полей структуры Celebrity.
+// Названия функций строго соответствуют полям GraphQL-типа Celebrity в схеме.
+// Здесь возвращаются заглушки ("stubs"), имитирующие данные, полученные из системы.
+func (c *CelebrityResolver) ID() graphql.ID    { return c.c.ID }
+func (c *CelebrityResolver) Firstname() string { return "firstname-stub" }
+func (c *CelebrityResolver) Surname() string   { return "surname-stub" }
+
+// === 4. HTTP-ОБРАБОТЧИКИ (Handlers) ===
+
+// graphqlHandler создает стандартную middleware-функцию Go для обработки HTTP-запросов.
+func graphqlHandler(schema *graphql.Schema) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Клиентские инструменты (например, Postman, Insomnia) шлют GraphQL-запросы 
+		// методом POST в формате JSON, содержащего поля query, operationName и variables.
+		var params struct {
+			Query         string                 `json:"query"`
+			OperationName string                 `json:"operationName"`
+			Variables     map[string]interface{} `json:"variables"`
+		}
+
+		// Декодируем входящее тело JSON-запроса в нашу анонимную структуру params
+		if err := json.NewDecoder(r.Body).Decode(&params); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest) // Ошибка 400, если JSON «сломан»
+			return
+		}
+
+		// Передаем распарсенную строку запроса во внутренний движок исполнения graphql-go.
+		// Функция .Exec сама разбирает строку GraphQL-запроса, валидирует её по схеме 
+		// и вызывает соответствующие методы-резолверы, объявленные выше.
+		response := schema.Exec(r.Context(), params.Query, params.OperationName, params.Variables)
+
+		// Выставляем HTTP-заголовок, сообщая клиенту, что возвращаем JSON в кодировке UTF-8
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		
+		// Кодируем результат выполнения GraphQL-движка обратно в JSON и отправляем клиенту
+		json.NewEncoder(w).Encode(response)
+	}
+}
+
+func main() {
+	// Инициализация: компилируем строковую GraphQL-схему и связываем её с корневым Резолвером.
+	// Функция MustParseSchema вызовет panic и остановит программу, если в тексте схемы 
+	// допущена синтаксическая ошибка. Это гарантирует валидность схемы на этапе старта.
+	schema := graphql.MustParseSchema(schemaString, &Resolver{})
+
+	// Регистрируем ЕДИНСТВЕННЫЙ роут (endpoint) "/graphql". 
+	// В GraphQL все операции (будь то чтение или запись) всегда идут через одну точку входа.
+	http.HandleFunc("/graphql", graphqlHandler(schema))
+
+	log.Println("GraphQL server is running on http://localhost:3000/graphql")
+	
+	// Запускаем веб-сервер на порту 3000. log.Fatal завершит программу, если порт занят.
+	log.Fatal(http.ListenAndServe(":3000", nil))
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "fullName": "Leonardo DiCaprio",
+    "nationality": "American",
+    "reqPhotoPath": "/photos/leo.jpg"
+  },
+  {
+    "id": 2,
+    "fullName": "Penélope Cruz",
+    "nationality": "Spanish",
+    "reqPhotoPath": "/photos/penelope.jpg"
+  },
+  {
+    "id": 3,
+    "fullName": "Jackie Chan",
+    "nationality": "Chinese",
+    "reqPhotoPath": "/photos/jackie.jpg"
+  }
+]

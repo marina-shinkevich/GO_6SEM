@@ -1,0 +1,11 @@
+{
+  "query": "mutation ($id: Int!, $input: UpdateCelebrityInput!) { updateCelebrity(id: $id, input: $input) { id fullName nationality reqPhotoPath } }",
+  "variables": {
+    "id": 2,
+    "input": {
+      "fullName": "Audrey Hepburn Updated",
+      "nationality": "United Kingdom",
+      "reqPhotoPath": "photos/audrey_hepburn_updated.jpg"
+    }
+  }
+}

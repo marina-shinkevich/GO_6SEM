@@ -1,0 +1,131 @@
+basePath: /
+definitions:
+  main.Celebrity:
+    description: Модель знаменитости.
+    properties:
+      fullname:
+        description: '@Description Полное Имя знаменитости (обязательное поле)'
+        type: string
+      id:
+        description: '@Description Уникальный идентификатор знаменитости'
+        type: integer
+    type: object
+host: localhost:3001
+info:
+  contact: {}
+  description: Полное REST API для управления списком знаменитостей с использованием
+    локального хранилища.
+  title: Celebrities API
+  version: "1.0"
+paths:
+  /celebrities:
+    get:
+      description: Возвращает полный список знаменитостей
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Celebrity'
+            type: array
+      summary: Получить всех знаменитостей
+    post:
+      consumes:
+      - application/json
+      description: Принимает JSON без ID, генерирует ID автоматически и сохраняет
+        в массив
+      parameters:
+      - description: Данные знаменитости
+        in: body
+        name: celebrity
+        required: true
+        schema:
+          $ref: '#/definitions/main.Celebrity'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.Celebrity'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Создать новую знаменитость
+  /celebrities/{id}:
+    delete:
+      description: Удаляет знаменитость из локального массива по ID
+      parameters:
+      - description: ID Знаменитости
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Celebrity deleted successfully
+          schema:
+            type: string
+        "404":
+          description: Celebrity not found
+          schema:
+            type: string
+      summary: Удалить знаменитость
+    get:
+      description: Возвращает одну знаменитость по её числовому идентификатору
+      parameters:
+      - description: ID Знаменитости
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Celebrity'
+        "404":
+          description: Celebrity not found
+          schema:
+            type: string
+      summary: Получить знаменитость по ID
+    put:
+      consumes:
+      - application/json
+      description: Находит знаменитость по ID и перезаписывает её данные
+      parameters:
+      - description: ID Знаменитости
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Новые данные знаменитости
+        in: body
+        name: celebrity
+        required: true
+        schema:
+          $ref: '#/definitions/main.Celebrity'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Celebrity'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Celebrity not found
+          schema:
+            type: string
+      summary: Обновить существующую знаменитость
+swagger: "2.0"

@@ -1,0 +1,3 @@
+{
+  "query": "query { celebrities { id fullName nationality reqPhotoPath } }"
+}

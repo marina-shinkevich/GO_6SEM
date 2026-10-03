@@ -1,0 +1,11 @@
+2026/05/21 20:06:04 GO11_01 started on http://localhost:3000 using server=VICTORY;port=65000;database=PIS_Lab5;encrypt=true;TrustServerCertificate=true;connection timeout=5;dial timeout=3
+2026/05/21 20:06:04 Swagger UI: http://localhost:3000/swagger/index.html
+2026/05/21 20:06:09 DELETE /Celebrities/4
+2026/05/21 20:06:09 POST /Celebrities
+2026/05/21 20:06:09 GET /Celebrities/All
+2026/05/21 20:06:09 GET /Celebrities/2
+2026/05/21 20:06:09 POST /Celebrities
+2026/05/21 20:06:09 POST /Celebrities
+2026/05/21 20:06:09 PUT /Celebrities/2
+2026/05/21 20:06:09 DELETE /Celebrities/3
+2026/05/21 20:06:09 DELETE /Celebrities/30

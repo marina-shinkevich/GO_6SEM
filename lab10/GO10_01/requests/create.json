@@ -1,0 +1,11 @@
+{
+  "query": "mutation ($input: AddCelebrityInput!) { addCelebrity(input: $input) { id fullName nationality reqPhotoPath } }",
+  "variables": {
+    "input": {
+      "id": 2323444,
+      "fullName": "Sopvjkhie Marceau",
+      "nationality": "France",
+      "reqPhotoPath": "photos/sophie_marceau.jpg"
+    }
+  }
+}

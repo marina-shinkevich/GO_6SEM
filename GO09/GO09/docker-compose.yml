@@ -1,0 +1,25 @@
+services:
+
+  nginx-webdav:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: nginx-webdav
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./webdav:/var/www/webdav
+    networks:
+      - webdav-net
+
+  cadaver:
+    build:
+      context: .
+      dockerfile: Dockerfile.cadaver
+    container_name: cadaver-client
+    networks:
+      - webdav-net
+
+networks:
+  webdav-net:
+    driver: bridge

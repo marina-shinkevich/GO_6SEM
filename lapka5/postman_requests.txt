@@ -1,0 +1,281 @@
+# Запросы Postman для тестирования REST API Celebrities
+# Базовый URL: http://localhost:3000
+
+## 1. Получить всех знаменитостей
+### GET /Celebrities/All
+```
+GET http://localhost:3000/Celebrities/All
+```
+
+**Заголовки:**
+- Content-Type: application/json
+
+**Ожидаемый ответ (200 OK):**
+```json
+[
+  {
+    "id": 1,
+    "fullName": "Tom Hanks",
+    "nationality": "American",
+    "reqPhotoPath": "/photos/tom_hanks.jpg"
+  },
+  {
+    "id": 2,
+    "fullName": "Scarlett Johansson",
+    "nationality": "American",
+    "reqPhotoPath": "/photos/scarlett_johansson.jpg"
+  }
+]
+```
+
+## 2. Получить знаменитость по ID
+### GET /Celebrities/{id}
+```
+GET http://localhost:3000/Celebrities/1
+```
+
+**Заголовки:**
+- Content-Type: application/json
+
+**Ожидаемый ответ (200 OK):**
+```json
+{
+  "id": 1,
+  "fullName": "Tom Hanks",
+  "nationality": "American",
+  "reqPhotoPath": "/photos/tom_hanks.jpg"
+}
+```
+
+**Ожидаемый ответ для несуществующего ID (404 Not Found):**
+```
+GET http://localhost:3000/Celebrities/999
+```
+
+## 3. Добавить новую знаменитость
+### POST /Celebrities
+```
+POST http://localhost:3000/Celebrities
+```
+
+**Заголовки:**
+- Content-Type: application/json
+
+**Тело запроса:**
+```json
+{
+  "id": 6,
+  "fullName": "Brad Pitt",
+  "nationality": "American",
+  "reqPhotoPath": "/photos/brad_pitt.jpg"
+}
+```
+
+**Ожидаемый ответ (201 Created):**
+```json
+{
+  "id": 6,
+  "fullName": "Brad Pitt",
+  "nationality": "American",
+  "reqPhotoPath": "/photos/brad_pitt.jpg"
+}
+```
+
+**Тело запроса для дублирования ID (ожидается 409 Conflict):**
+```json
+{
+  "id": 1,
+  "fullName": "Duplicate",
+  "nationality": "Test",
+  "reqPhotoPath": "/test.jpg"
+}
+```
+
+## 4. Обновить знаменитость
+### PUT /Celebrities/{id}
+```
+PUT http://localhost:3000/Celebrities/1
+```
+
+**Заголовки:**
+- Content-Type: application/json
+
+**Тело запроса:**
+```json
+{
+  "fullName": "Thomas Hanks",
+  "nationality": "USA",
+  "reqPhotoPath": "/photos/thomas_hanks_updated.jpg"
+}
+```
+
+**Ожидаемый ответ (200 OK):**
+```json
+{
+  "id": 1,
+  "fullName": "Thomas Hanks",
+  "nationality": "USA",
+  "reqPhotoPath": "/photos/thomas_hanks_updated.jpg"
+}
+```
+
+**Ожидаемый ответ для несуществующего ID (404 Not Found):**
+```
+PUT http://localhost:3000/Celebrities/999
+```
+
+## 5. Удалить знаменитость
+### DELETE /Celebrities/{id}
+```
+DELETE http://localhost:3000/Celebrities/2
+```
+
+**Ожидаемый ответ (204 No Content):**
+- Пустое тело ответа
+
+**Ожидаемый ответ для несуществующего ID (404 Not Found):**
+```
+DELETE http://localhost:3000/Celebrities/999
+```
+
+## 6. Полная последовательность тестирования
+
+### Шаг 1: Проверка начальных данных
+```
+GET http://localhost:3000/Celebrities/All
+```
+
+### Шаг 2: Добавление новой записи
+```
+POST http://localhost:3000/Celebrities
+Content-Type: application/json
+
+{
+  "id": 10,
+  "fullName": "Johnny Depp",
+  "nationality": "American",
+  "reqPhotoPath": "/photos/johnny_depp.jpg"
+}
+```
+
+### Шаг 3: Проверка добавления
+```
+GET http://localhost:3000/Celebrities/10
+```
+
+### Шаг 4: Обновление записи
+```
+PUT http://localhost:3000/Celebrities/10
+Content-Type: application/json
+
+{
+  "fullName": "John Christopher Depp II",
+  "nationality": "USA",
+  "reqPhotoPath": "/photos/johnny_depp_updated.jpg"
+}
+```
+
+### Шаг 5: Проверка обновления
+```
+GET http://localhost:3000/Celebrities/10
+```
+
+### Шаг 6: Удаление записи
+```
+DELETE http://localhost:3000/Celebrities/10
+```
+
+### Шаг 7: Проверка удаления (должен вернуть 404)
+```
+GET http://localhost:3000/Celebrities/10
+```
+
+### Шаг 8: Финальная проверка всех записей
+```
+GET http://localhost:3000/Celebrities/All
+```
+
+## 7. Тестирование ошибок
+
+### Тест 1: Неверный формат JSON
+```
+POST http://localhost:3000/Celebrities
+Content-Type: application/json
+
+{
+  "id": "не число",
+  "fullName": "Test",
+  "nationality": "Test"
+  // Отсутствует закрывающая скобка
+```
+
+**Ожидаемый ответ: 400 Bad Request**
+
+### Тест 2: Отсутствие обязательных полей
+```
+POST http://localhost:3000/Celebrities
+Content-Type: application/json
+
+{
+  "id": 20
+  // Отсутствуют fullName и другие поля
+}
+```
+
+**Ожидаемый ответ: 400 Bad Request (зависит от валидации в БД)**
+
+### Тест 3: Неверный метод
+```
+PATCH http://localhost:3000/Celebrities/1
+```
+
+**Ожидаемый ответ: 405 Method Not Allowed**
+
+## 8. Переменные окружения Postman
+
+Для удобства можно создать переменные в Postman:
+
+1. **base_url**: `http://localhost:3000`
+2. **content_type**: `application/json`
+
+Тогда запросы будут выглядеть так:
+```
+GET {{base_url}}/Celebrities/All
+Content-Type: {{content_type}}
+```
+
+## 9. Коллекция для импорта в Postman
+
+Создайте новую коллекцию "Celebrities API" и добавьте все вышеперечисленные запросы.
+
+## 10. Тестовые скрипты (опционально)
+
+Для автоматической проверки ответов можно добавить тестовые скрипты:
+
+```javascript
+// Для GET /Celebrities/All
+pm.test("Status code is 200", function () {
+    pm.response.to.have.status(200);
+});
+
+pm.test("Response has JSON body", function () {
+    pm.response.to.be.json;
+});
+
+// Для POST /Celebrities (201 Created)
+pm.test("Status code is 201", function () {
+    pm.response.to.have.status(201);
+});
+
+pm.test("New celebrity has correct ID", function () {
+    var jsonData = pm.response.json();
+    pm.expect(jsonData.id).to.eql(6);
+});
+```
+
+## Примечания:
+1. Перед тестированием убедитесь, что сервер запущен: `bin\GO05_01.exe`
+2. База данных должна быть настроена (запустите `create_db_user.sql`)
+3. Для работы запросов нужен установленный curl или Postman
+4. Все ID должны быть уникальными целыми числами
+5. Сервер использует порт 3000

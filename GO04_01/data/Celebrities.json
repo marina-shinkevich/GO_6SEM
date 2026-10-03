@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "fullName": "Leвапроonardo DiCaprio",
+    "nationality": "American",
+    "reqPhotoPath": "/photos/leo.jpg"
+  },
+  {
+    "id": 2,
+    "fullName": "Penélope Cruz",
+    "nationality": "Spanish",
+    "reqPhotoPath": "/photos/penelope.jpg"
+  }
+]

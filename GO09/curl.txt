@@ -1,0 +1,15 @@
+curl -u webdavuser:mypassword123 -X MKCOL http://localhost:8081/testdir/
+
+echo "Hello" | curl -u webdavuser:mypassword123 -T - http://localhost:8081/testdir/file.txt
+
+curl -u webdavuser:mypassword123 http://localhost:8081/testdir/file.txt
+
+curl -u webdavuser:mypassword123 -X COPY http://localhost:8081/testdir/file.txt -H "Destination: http://localhost:8081/testdir/copy.txt"
+
+curl -u webdavuser:mypassword123 -X MOVE http://localhost:8081/testdir/copy.txt -H "Destination: http://localhost:8081/testdir/moved.txt"
+
+curl -u webdavuser:mypassword123 -X DELETE http://localhost:8081/testdir/file.txt
+
+curl -u webdavuser:mypassword123 -X DELETE http://localhost:8081/testdir/ -H "Depth: infinity"
+
+curl -u webdavuser:mypassword123 -X PROPFIND http://localhost:8080/

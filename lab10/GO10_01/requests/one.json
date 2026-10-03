@@ -1,0 +1,6 @@
+{
+  "query": "query ($id: Int!) { celebrity(id: $id) { id fullName nationality reqPhotoPath } }",
+  "variables": {
+    "id": 2
+  }
+}

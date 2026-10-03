@@ -1,0 +1,2 @@
+2026/05/21 19:01:49 GO10_01 started on http://localhost:3000/graphql using server=VICTORY;port=65000;database=PIS_Lab5;encrypt=true;TrustServerCertificate=true;connection timeout=5;dial timeout=3
+2026/05/21 19:01:54 POST /graphql

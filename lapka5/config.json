@@ -1,0 +1,13 @@
+{
+  "database": {
+    "server": "localhost",
+    "port": 1433,
+    "database": "CelebritiesDB",
+    "user": "celebrities_app",
+    "password": "AppPassword123"
+  },
+  "server": {
+    "port": 3000,
+    "host": "localhost"
+  }
+}

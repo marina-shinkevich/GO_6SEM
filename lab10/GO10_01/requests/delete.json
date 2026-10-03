@@ -1,0 +1,6 @@
+{
+  "query": "mutation ($id: Int!) { deleteCelebrity(id: $id) { id fullName nationality reqPhotoPath } }",
+  "variables": {
+    "id": 2323444
+  }
+}
